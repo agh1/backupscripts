@@ -1,0 +1,23 @@
+#!/bin/sh
+
+dbname='DATABASE NAME'
+dbuser='DATABASE USER'
+dbpass='USER PASSWORD'
+backuproot='BACKUP DIRECTORY'
+
+mysqldump -u $dbuser -p$dbpass $dbname > $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql
+
+dow=`/bin/date +%w`
+dom=`/bin/date +%d`
+
+if [ $dow -eq 0 ]
+then
+mv $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql $backuproot/$dbname"weekly"`/bin/date +%Y%m%d`.sql
+rm $backuproot/$dbname"daily"*
+fi
+
+if [ $dom = '01' ]
+then
+mv $backuproot/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql $backuproot/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql
+rm $backuproot/$dbname"weekly"*
+fi

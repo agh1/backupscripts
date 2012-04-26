@@ -1,0 +1,3 @@
+These two scripts set up a rudimentary backup system for a Drupal site that has everything in /sites/all and /sites/default/files
+
+It will not back up the settings files.  This should be fine: you can create a new settings file, and the database information is probably new anyway.
