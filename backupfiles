@@ -9,13 +9,17 @@ dom=`/bin/date +%d`
 if [ $dow -eq 3 -o $dow -eq 5 ]
 then
 tar -C $fileroot -czf $backuproot/sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz sites/default/files
+chmod 400 $backuproot/sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz
 tar -C $fileroot -czf $backuproot/sites-all-wf`/bin/date +%Y%m%d`.tar.gz sites/all
+chmod 400 $backuproot/sites-all-wf`/bin/date +%Y%m%d`.tar.gz
 else
 
         if [ $dow -eq 1 ]
         then
         tar -C $fileroot -czf $backuproot/sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz sites/default/files
+        chmod 400 $backuproot/sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz
         tar -C $fileroot -czf $backuproot/sites-all-weekly`/bin/date +%Y%m%d`.tar.gz sites/all
+        chmod 400 $backuproot/sites-all-weekly`/bin/date +%Y%m%d`.tar.gz
         rm $backuproot/sites-default-files-wf*
         rm $backuproot/sites-all-wf*
         fi
