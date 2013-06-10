@@ -2,34 +2,65 @@
 
 fileroot='ROOT DRUPAL DIRECTORY'
 backuproot='BACKUP DIRECTORY'
+siteid='UNIQUE SITE ID'
+
+nondrupal=0 # set to 1 if the site root should be backed up instead
 
 dow=`/bin/date +%w`
 dom=`/bin/date +%d`
 
-if [ $dow -eq 3 -o $dow -eq 5 ]
+if [ $nondrupal -eq 0 ]
 then
-tar -C $fileroot -czf $backuproot/sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz sites/default/files
-chmod 400 $backuproot/sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz
-tar -C $fileroot -czf $backuproot/sites-all-wf`/bin/date +%Y%m%d`.tar.gz sites/all
-chmod 400 $backuproot/sites-all-wf`/bin/date +%Y%m%d`.tar.gz
+
+  if [ $dow -eq 3 -o $dow -eq 5 ]
+  then
+  tar -C $fileroot -czf $backuproot/$siteid-sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz sites/default/files
+  chmod 400 $backuproot/$siteid-sites-default-files-wf`/bin/date +%Y%m%d`.tar.gz
+  tar -C $fileroot -czf $backuproot/$siteid-sites-all-wf`/bin/date +%Y%m%d`.tar.gz sites/all
+  chmod 400 $backuproot/$siteid-sites-all-wf`/bin/date +%Y%m%d`.tar.gz
+  else
+
+          if [ $dow -eq 1 ]
+          then
+          tar -C $fileroot -czf $backuproot/$siteid-sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz sites/default/files
+          chmod 400 $backuproot/$siteid-sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz
+          tar -C $fileroot -czf $backuproot/$siteid-sites-all-weekly`/bin/date +%Y%m%d`.tar.gz sites/all
+          chmod 400 $backuproot/$siteid-sites-all-weekly`/bin/date +%Y%m%d`.tar.gz
+          rm -f $backuproot/$siteid-sites-default-files-wf*
+          rm -f $backuproot/$siteid-sites-all-wf*
+          fi
+  fi
+
+  if [ $dom = '01' ]
+
+  then
+  mv $backuproot/$siteid-sites-default-files-weekly`/bin/date --date='last monday' +%Y%m%d`.tar.gz $backuproot/$siteid-sites-default-files-monthly`/bin/date --date='last monday' +%Y%m%d`.tar.gz
+  mv $backuproot/$siteid-sites-all-weekly`/bin/date --date='last monday' +%Y%m%d`.tar.gz $backuproot/$siteid-sites-all-monthly`/bin/date --date='last monday' +%Y%m%d`.tar.gz
+          rm -f $backuproot/$siteid-sites-default-files-weekly*
+          rm -f $backuproot/$siteid-sites-all-weekly*
+  fi
+
 else
+  
+  if [ $dow -eq 3 -o $dow -eq 5 ]
+  then
+  tar -C $fileroot -czf $backuproot/$siteid-allfiles-wf`/bin/date +%Y%m%d`.tar.gz .
+  chmod 400 $backuproot/$siteid-allfiles-wf`/bin/date +%Y%m%d`.tar.gz
+  else
 
-        if [ $dow -eq 1 ]
-        then
-        tar -C $fileroot -czf $backuproot/sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz sites/default/files
-        chmod 400 $backuproot/sites-default-files-weekly`/bin/date +%Y%m%d`.tar.gz
-        tar -C $fileroot -czf $backuproot/sites-all-weekly`/bin/date +%Y%m%d`.tar.gz sites/all
-        chmod 400 $backuproot/sites-all-weekly`/bin/date +%Y%m%d`.tar.gz
-        rm $backuproot/sites-default-files-wf*
-        rm $backuproot/sites-all-wf*
-        fi
-fi
+          if [ $dow -eq 1 ]
+          then
+          tar -C $fileroot -czf $backuproot/$siteid-allfiles-weekly`/bin/date +%Y%m%d`.tar.gz .
+          chmod 400 $backuproot/$siteid-allfiles-weekly`/bin/date +%Y%m%d`.tar.gz
+          rm -f $backuproot/$siteid-allfiles-wf*
+          fi
+  fi
 
-if [ $dom = '01' ]
+  if [ $dom = '01' ]
 
-then
-mv $backuproot/sites-default-files-weekly`/bin/date --date='last monday' +%Y%m%d`.tar.gz $backuproot/sites-default-files-monthly`/bin/date --date='last monday' +%Y%m%d`.tar.gz
-mv $backuproot/sites-all-weekly`/bin/date --date='last monday' +%Y%m%d`.tar.gz $backuproot/sites-all-monthly`/bin/date --date='last monday' +%Y%m%d`.tar.gz
-        rm $backuproot/sites-default-files-weekly*
-        rm $backuproot/sites-all-weekly*
+  then
+  mv $backuproot/$siteid-allfiles-weekly`/bin/date --date='last monday' +%Y%m%d`.tar.gz $backuproot/$siteid-allfiles-monthly`/bin/date --date='last monday' +%Y%m%d`.tar.gz
+          rm -f $backuproot/$siteid-allfiles-weekly*
+  fi
+  
 fi
