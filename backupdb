@@ -5,21 +5,23 @@ dbuser='DATABASE USER'
 dbpass='USER PASSWORD'
 backuproot='BACKUP DIRECTORY'
 
+rm -f $backuproot/$dbname"daily"*.sql
 mysqldump -u $dbuser -p$dbpass $dbname > $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql
 
-chmod 400 $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql
+tar -C $backuproot -czf $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
+chmod 400 $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql*
 
 dow=`/bin/date +%w`
 dom=`/bin/date +%d`
 
 if [ $dow -eq 0 ]
 then
-mv $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql $backuproot/$dbname"weekly"`/bin/date +%Y%m%d`.sql
+mv $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $backuproot/$dbname"weekly"`/bin/date +%Y%m%d`.sql.tar.gz
 rm -f $backuproot/$dbname"daily"*
 fi
 
 if [ $dom = '01' ]
 then
-mv $backuproot/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql $backuproot/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql
+mv $backuproot/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $backuproot/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
 rm -f $backuproot/$dbname"weekly"*
 fi
