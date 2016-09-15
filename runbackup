@@ -1,0 +1,71 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z $1 ] || [ ! -r $DIR/$1 ]
+  then
+    configfile="$DIR/backup.cfg"
+  else
+    configfile="$DIR/$1"
+fi
+
+source "$configfile"
+dow=`/bin/date +%w`
+dom=`/bin/date +%d`
+
+if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
+  then
+    dom='01'
+fi
+
+export PASSPHRASE=$passphrase
+if [ $dom = '01' ]
+  then
+    lastrun=`duplicity full --name $siteid $fileroot file://$local`
+    lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force file://$local`
+    lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force file://$local`
+    if [ -z $remote ]
+      then
+        lastrun+=$'\n'`duplicity full --name $siteid $fileroot $remote`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force $remote`
+        lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force $remote`
+    fi
+  else
+    lastrun=`duplicity incremental --name $siteid $fileroot file://$local`
+    if [ -z $remote ]
+      then
+        lastrun+=$'\n'`duplicity incremental --name $siteid $fileroot $remote`
+    fi
+fi
+unset PASSPHRASE
+
+rm -f $local/db/$dbname"daily"*.sql
+mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+
+tar -C $local/db -czf $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
+chmod 400 $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+chmod 400 $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
+if [ -z $remote ]
+  then
+    lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote`
+fi
+
+if [ $dow -eq 0 ]
+  then
+    mv $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $local/db/weekly/$dbname"weekly"`/bin/date +%Y%m%d`.sql.tar.gz
+    rm -f $local/db/daily/$dbname"daily"*
+fi
+
+if [ $dom = '01' ]
+  then
+    mv $local/db/weekly/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
+    rm -f $local/db/weekly/$dbname"weekly"*
+    if [ -z $remote ]
+      then
+        lastrun+=$'\n'`duplicity full --name $siteid-db-daily $local/db/daily $remote`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 2 --name $siteid-db-daily --force $remote`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 1 --name $siteid-db-monthly --force $remote`
+        lastrun+=$'\n'`duplicity full --name $siteid-db-monthly $local/db/monthly $remote`
+    fi
+fi
+
+echo "$lastrun" > $DIR/lastrun

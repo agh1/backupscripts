@@ -1,0 +1,9 @@
+#!/bin/bash
+
+fileroot='SITE ROOT DIRECTORY'
+local='BACKUP DIRECTORY'
+siteid='UNIQUE SITE ID'
+passphrase='YOUR PASSPHRASE'
+remote='DUPLICITY TARGET URL FOR REMOTE BACKUP'
+loginpath='LOGIN-PATH NAME'
+dbname='DATABASE NAME'
