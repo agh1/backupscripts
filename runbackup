@@ -41,7 +41,12 @@ fi
 unset PASSPHRASE
 
 rm -f $local/db/$dbname"daily"*.sql
-mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+if [ -z $loginpath ]
+  then
+    mysqldump -u $dbuser -p$dbpass $dbname > $backuproot/$dbname"daily"`/bin/date +%Y%m%d`.sql
+  else
+    mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+fi
 
 tar -C $local/db -czf $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
 chmod 400 $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
@@ -49,6 +54,13 @@ chmod 400 $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
 
 if [ ! -z $cmsdbname ]
   then
+    if [ -z $loginpath ]
+      then
+        mysqldump -u $dbuser -p$dbpass $cmsdbname > $backuproot/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql
+      else
+        mysqldump --login-path=$loginpath $cmsdbname > $local/db/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql
+    fi
+
     tar -C $local/db -czf $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $cmsdbname"daily"`/bin/date +%Y%m%d`.sql
     chmod 400 $local/db/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql
     chmod 400 $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz

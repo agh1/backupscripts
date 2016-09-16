@@ -6,5 +6,8 @@ siteid='UNIQUE SITE ID'
 passphrase='YOUR PASSPHRASE'
 remote='DUPLICITY TARGET URL FOR REMOTE BACKUP'
 loginpath='LOGIN-PATH NAME'
+# without loginpath:
+# dbuser='DATABASE USER'
+# dbpass='DATABASE USER PASSWORD'
 dbname='DATABASE NAME'
 cmsdbname='OPTIONAL CMS DATABASE NAME'
