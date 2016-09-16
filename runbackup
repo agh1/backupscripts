@@ -11,10 +11,12 @@ fi
 source "$configfile"
 dow=`/bin/date +%w`
 dom=`/bin/date +%d`
+month=`/bin/date +%m`
 
 if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
   then
     dom='01'
+    month='01'
 fi
 
 export PASSPHRASE=$passphrase
@@ -64,7 +66,13 @@ if [ $dom = '01' ]
         lastrun+=$'\n'`duplicity full --name $siteid-db-daily $local/db/daily $remote`
         lastrun+=$'\n'`duplicity remove-all-but-n-full 2 --name $siteid-db-daily --force $remote`
         lastrun+=$'\n'`duplicity remove-all-but-n-full 1 --name $siteid-db-monthly --force $remote`
-        lastrun+=$'\n'`duplicity full --name $siteid-db-monthly $local/db/monthly $remote`
+
+        if [ $month = '01' ]
+          then
+            lastrun+=$'\n'`duplicity full --name $siteid-db-monthly $local/db/monthly $remote`
+          else
+            lastrun+=$'\n'`duplicity incremental --name $siteid-db-monthly $local/db/monthly $remote`
+        fi
     fi
 fi
 
