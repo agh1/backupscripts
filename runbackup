@@ -46,6 +46,14 @@ mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +
 tar -C $local/db -czf $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
 chmod 400 $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
 chmod 400 $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
+
+if [ ! -z $cmsdbname ]
+  then
+    tar -C $local/db -czf $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $cmsdbname"daily"`/bin/date +%Y%m%d`.sql
+    chmod 400 $local/db/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql
+    chmod 400 $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
+fi
+
 if [ -z $remote ]
   then
     lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote`
@@ -55,12 +63,26 @@ if [ $dow -eq 0 ]
   then
     mv $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $local/db/weekly/$dbname"weekly"`/bin/date +%Y%m%d`.sql.tar.gz
     rm -f $local/db/daily/$dbname"daily"*
+
+    if [ ! -z $cmsdbname ]
+      then
+        mv $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $local/db/weekly/$cmsdbname"weekly"`/bin/date +%Y%m%d`.sql.tar.gz
+        rm -f $local/db/daily/$cmsdbname"daily"*
+    fi
 fi
 
 if [ $dom = '01' ]
   then
     mv $local/db/weekly/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
     rm -f $local/db/weekly/$dbname"weekly"*
+
+    if [ ! -z $cmsdbname ]
+      then
+        mv $local/db/weekly/$cmsdbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$cmsdbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
+        rm -f $local/db/weekly/$cmsdbname"weekly"*
+    fi
+
+
     if [ -z $remote ]
       then
         lastrun+=$'\n'`duplicity full --name $siteid-db-daily $local/db/daily $remote`
