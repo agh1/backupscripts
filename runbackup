@@ -40,6 +40,10 @@ if [ $dom = '01' ]
 fi
 unset PASSPHRASE
 
+mkdir -p $local/db/daily
+mkdir -p $local/db/weekly
+mkdir -p $local/db/monthly
+
 rm -f $local/db/$dbname"daily"*.sql
 if [ -z $loginpath ]
   then
