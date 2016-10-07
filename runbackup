@@ -33,15 +33,15 @@ if [ $dom = '01' ]
     lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force file://$local`
     if [ ! -z $remote ]
       then
-        lastrun+=$'\n'`duplicity full --name $siteid $fileroot $remote`
-        lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force $remote`
-        lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force $remote`
+        lastrun+=$'\n'`duplicity full --name $siteid $fileroot $remote/files`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force $remote/files`
+        lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force $remote/files`
     fi
   else
     lastrun=`duplicity incremental --name $siteid $fileroot file://$local`
     if [ ! -z $remote ]
       then
-        lastrun+=$'\n'`duplicity incremental --name $siteid $fileroot $remote`
+        lastrun+=$'\n'`duplicity incremental --name $siteid $fileroot $remote/files`
     fi
 fi
 
@@ -77,7 +77,7 @@ fi
 
 if [ ! -z $remote ]
   then
-    lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote`
+    lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote/db/daily`
 fi
 
 if [ $dow -eq 0 ]
@@ -106,15 +106,14 @@ if [ $dom = '01' ]
 
     if [ ! -z $remote ]
       then
-        lastrun+=$'\n'`duplicity full --name $siteid-db-daily $local/db/daily $remote`
-        lastrun+=$'\n'`duplicity remove-all-but-n-full 2 --name $siteid-db-daily --force $remote`
-        lastrun+=$'\n'`duplicity remove-all-but-n-full 1 --name $siteid-db-monthly --force $remote`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 2 --name $siteid-db-daily --force $remote/db/daily`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 1 --name $siteid-db-monthly --force $remote/db/monthly`
 
         if [ $month = '01' ]
           then
-            lastrun+=$'\n'`duplicity full --name $siteid-db-monthly $local/db/monthly $remote`
+            lastrun+=$'\n'`duplicity full --name $siteid-db-monthly $local/db/monthly $remote/db/monthly`
           else
-            lastrun+=$'\n'`duplicity incremental --name $siteid-db-monthly $local/db/monthly $remote`
+            lastrun+=$'\n'`duplicity incremental --name $siteid-db-monthly $local/db/monthly $remote/db/monthly`
         fi
     fi
 fi
