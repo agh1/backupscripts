@@ -5,6 +5,10 @@ local='BACKUP DIRECTORY'
 siteid='UNIQUE SITE ID'
 passphrase='YOUR PASSPHRASE'
 remote='DUPLICITY TARGET URL FOR REMOTE BACKUP'
+# for s3, use a remote like "s3://s3.amazonaws.com/my-bucket-name"
+# and set the following:
+# s3accesskey=''
+# s3secret=''
 loginpath='LOGIN-PATH NAME'
 # without loginpath:
 # dbuser='DATABASE USER'

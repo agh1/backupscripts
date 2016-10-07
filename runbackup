@@ -20,6 +20,12 @@ if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
 fi
 
 export PASSPHRASE=$passphrase
+if [ ! -z $s3accesskey ]
+  then
+    export AWS_ACCESS_KEY_ID=$s3accesskey
+    export AWS_SECRET_ACCESS_KEY=$s3secret
+fi
+
 if [ $dom = '01' ]
   then
     lastrun=`duplicity full --name $siteid $fileroot file://$local`
@@ -38,7 +44,6 @@ if [ $dom = '01' ]
         lastrun+=$'\n'`duplicity incremental --name $siteid $fileroot $remote`
     fi
 fi
-unset PASSPHRASE
 
 mkdir -p $local/db/daily
 mkdir -p $local/db/weekly
@@ -112,6 +117,12 @@ if [ $dom = '01' ]
             lastrun+=$'\n'`duplicity incremental --name $siteid-db-monthly $local/db/monthly $remote`
         fi
     fi
+fi
+unset PASSPHRASE
+if [ ! -z $s3accesskey ]
+  then
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
 fi
 
 echo "$lastrun" > $DIR/lastrun
