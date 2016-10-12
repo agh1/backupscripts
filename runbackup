@@ -78,7 +78,12 @@ fi
 
 if [ ! -z $remote ]
   then
-    lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote/db/daily`
+    if [ $dom = '01' ]
+      then
+        lastrun+=$'\n'`duplicity full --name $siteid-db-daily $local/db/daily $remote/db/daily`
+      else
+        lastrun+=$'\n'`duplicity incremental --name $siteid-db-daily $local/db/daily $remote/db/daily`
+    fi
 fi
 
 if [ $dow -eq 0 ]
