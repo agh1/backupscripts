@@ -28,20 +28,20 @@ fi
 
 if [ $dom = '01' ]
   then
-    lastrun=`duplicity full --name $siteid $fileroot file://$local`
-    lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force file://$local`
-    lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force file://$local`
+    lastrun=`duplicity full --name $siteid $fileroot file://$local/files`
+    lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force file://$local/files`
+    lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force file://$local/files`
     if [ ! -z $remote ]
       then
-        lastrun+=$'\n'`duplicity full --name $siteid $fileroot $remote/files`
-        lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force $remote/files`
-        lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force $remote/files`
+        lastrun+=$'\n'`duplicity full --name $siteid-remote-files $fileroot $remote/files`
+        lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid-remote-files --force $remote/files`
+        lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid-remote-files --force $remote/files`
     fi
   else
-    lastrun=`duplicity incremental --name $siteid $fileroot file://$local`
+    lastrun=`duplicity incremental --name $siteid $fileroot file://$local/files`
     if [ ! -z $remote ]
       then
-        lastrun+=$'\n'`duplicity incremental --name $siteid $fileroot $remote/files`
+        lastrun+=$'\n'`duplicity incremental --name $siteid-remote-files $fileroot $remote/files`
     fi
 fi
 
