@@ -17,6 +17,7 @@ if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
   then
     dom='01'
     month='01'
+    firstrun=TRUE
 fi
 
 export PASSPHRASE=$passphrase
@@ -100,15 +101,17 @@ fi
 
 if [ $dom = '01' ]
   then
-    mv $local/db/weekly/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
-    rm -f $local/db/weekly/$dbname"weekly"*
-
-    if [ ! -z $cmsdbname ]
+    if [ -z $firstrun ]
       then
-        mv $local/db/weekly/$cmsdbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$cmsdbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
-        rm -f $local/db/weekly/$cmsdbname"weekly"*
-    fi
+        mv $local/db/weekly/$dbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$dbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
+        rm -f $local/db/weekly/$dbname"weekly"*
 
+        if [ ! -z $cmsdbname ]
+          then
+            mv $local/db/weekly/$cmsdbname"weekly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz $local/db/monthly/$cmsdbname"monthly"`/bin/date --date='last sunday' +%Y%m%d`.sql.tar.gz
+            rm -f $local/db/weekly/$cmsdbname"weekly"*
+        fi
+    fi
 
     if [ ! -z $remote ]
       then
