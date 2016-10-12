@@ -63,6 +63,7 @@ chmod 600 $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
 
 if [ ! -z $cmsdbname ]
   then
+    rm -f $local/db/$cmsdbname"daily"*.sql
     if [ -z $loginpath ]
       then
         mysqldump -u $dbuser -p$dbpass $cmsdbname > $local/db/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql
