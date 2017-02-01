@@ -13,6 +13,7 @@ dow=`/bin/date +%w`
 dom=`/bin/date +%d`
 month=`/bin/date +%m`
 
+# Add the param "firstrun" to force a full backup instead of incremental.
 if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
   then
     dom='01'
@@ -20,6 +21,7 @@ if [ "$2" = 'firstrun' ] || ([ -z $2 ] && [ "$1" = 'firstrun' ])
     firstrun=TRUE
 fi
 
+# Pull in variables from the config file.
 export PASSPHRASE=$passphrase
 if [ ! -z $s3accesskey ]
   then
@@ -27,17 +29,24 @@ if [ ! -z $s3accesskey ]
     export AWS_SECRET_ACCESS_KEY=$s3secret
 fi
 
+# FILESYSTEM BACKUP
 if [ $dom = '01' ]
+  # Create a full duplicity backup if it's the first of the month.
   then
+    # Create a local duplicity backup of the files directory 
     lastrun=`duplicity full --name $siteid $fileroot file://$local/files`
+    # Delete old duplicity backups.
+    # If this is run on September 1st, it will keep backups from April 1, May 1, June 1, July 1, and every day in August.
     lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid --force file://$local/files`
     lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid --force file://$local/files`
+    # If you've defined an off-site remote host, make duplicity backups there, too.
     if [ ! -z $remote ]
       then
         lastrun+=$'\n'`duplicity full --name $siteid-remote-files $fileroot $remote/files`
         lastrun+=$'\n'`duplicity remove-all-but-n-full 6 --name $siteid-remote-files --force $remote/files`
         lastrun+=$'\n'`duplicity remove-all-inc-of-but-n-full 2 --name $siteid-remote-files --force $remote/files`
     fi
+  # It's not the first of the month - just do an incremental backup (plus a remote incremental backup if remote is defined).  
   else
     lastrun=`duplicity incremental --name $siteid $fileroot file://$local/files`
     if [ ! -z $remote ]
@@ -46,10 +55,14 @@ if [ $dom = '01' ]
     fi
 fi
 
+# SQL BACKUP
+
+# Make folders to store db backups if need be.
 mkdir -p $local/db/daily
 mkdir -p $local/db/weekly
 mkdir -p $local/db/monthly
 
+# Delete the daily backup and create a new one.
 rm -f $local/db/$dbname"daily"*.sql
 if [ -z $loginpath ]
   then
@@ -58,10 +71,14 @@ if [ -z $loginpath ]
     mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
 fi
 
+# Make a .tar.gz of the directory and tighten its permissions.
 tar -C $local/db -czf $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
 chmod 600 $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
 chmod 600 $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
 
+# If you have a second database defined for your CMS (i.e. split CiviCRM/CMS dbs, back up the CMS db also.
+# We back up the parent folder, not the file itself, so we can give each backup a unique name (a timestamp)
+# while still allowing duplicity to remove older backups.
 if [ ! -z $cmsdbname ]
   then
     rm -f $local/db/$cmsdbname"daily"*.sql
@@ -77,6 +94,7 @@ if [ ! -z $cmsdbname ]
     chmod 600 $local/db/daily/$cmsdbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz
 fi
 
+# If you have a remote defined, Make an off-site copy of the daily db backup.
 if [ ! -z $remote ]
   then
     if [ $dom = '01' ]
@@ -87,6 +105,7 @@ if [ ! -z $remote ]
     fi
 fi
 
+# On Sundays, move a copy of the daily backup archive to the weekly folder.
 if [ $dow -eq 0 ]
   then
     mv $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $local/db/weekly/$dbname"weekly"`/bin/date +%Y%m%d`.sql.tar.gz
@@ -99,6 +118,8 @@ if [ $dow -eq 0 ]
     fi
 fi
 
+# On the first of the month, move the backup archive from last Sunday to the monthly folder.
+# Why not the most recent backup?  I don't 100% understand why daily/weekly files are deleted when they are.
 if [ $dom = '01' ]
   then
     if [ -z $firstrun ]
@@ -112,7 +133,7 @@ if [ $dom = '01' ]
             rm -f $local/db/weekly/$cmsdbname"weekly"*
         fi
     fi
-
+    # Copy db backups to the off-site backup host.  But only once a month.
     if [ ! -z $remote ]
       then
         lastrun+=$'\n'`duplicity remove-all-but-n-full 2 --name $siteid-db-daily --force $remote/db/daily`
