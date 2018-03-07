@@ -1,3 +1,18 @@
 These two scripts set up a rudimentary backup system for a Drupal site that has everything in /sites/all and /sites/default/files
 
 It will not back up the settings files.  This should be fine: you can create a new settings file, and the database information is probably new anyway.
+
+
+# Amazon S3
+
+> sudo apt-get install python-pip
+
+> sudo pip install boto
+
+Set up a bucket
+
+Set up a user
+
+Grant access to the bucket
+
+chmod 500 backup.cfg
