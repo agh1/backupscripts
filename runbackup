@@ -53,9 +53,9 @@ mkdir -p $local/db/monthly
 rm -f $local/db/$dbname"daily"*.sql
 if [ -z $loginpath ]
   then
-    mysqldump -u $dbuser -p$dbpass $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+    mysqldump --routines -u $dbuser -p$dbpass $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
   else
-    mysqldump --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
+    mysqldump --routines --login-path=$loginpath $dbname > $local/db/$dbname"daily"`/bin/date +%Y%m%d`.sql
 fi
 
 tar -C $local/db -czf $local/db/daily/$dbname"daily"`/bin/date +%Y%m%d`.sql.tar.gz $dbname"daily"`/bin/date +%Y%m%d`.sql
